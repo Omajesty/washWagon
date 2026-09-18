@@ -1,0 +1,68 @@
+Team Wolf Moons — Majesty & Kosi
+Book pickups into time-slots with real courier capacity, and track every bag to the door.
+In one minute
+An app for a laundry pickup service. Customers book a time-slot; a courier collects, the laundry is washed, the
+courier delivers; customers watch the status. The one thing that must never happen: more pickups booked in a
+slot than the courier can serve.
+Words you need
+Slot A time window in one zone with a fixed capacity (e.g. Lekki, 9–11 a.m., capacity 5).
+Capacity How many pickups a slot can take.
+Stage Where an order is: BOOKED → COLLECTED → WASHING → READY →
+OUT_FOR_DELIVERY → DELIVERED.
+Webhook The payment provider calls your API when a customer pays online.
+SSE A kept-open connection used to push stage changes to the customer's phone.
+A day in the life
+Bisi books the Lekki 9–11 slot; the API locks the slot, sees 4 of 5 booked, makes it 5. Seyi tries the same slot a
+second later — 409, full. Bisi pays online; the provider's webhook confirms. Courier Ibrahim accepts, marks
+COLLECTED, and Bisi's phone updates live. Someone taps DELIVERED before WASHING — 409, out of
+order. Two days later the order is delivered and the history shows every stage with a time.
+The problem
+Laundry pickup services promise six pickups in a window one courier can serve, and lose track of whose shirts
+are whose. WashWagon books pickups into time-slots with a fixed capacity per zone, moves each order
+through wash stages, and keeps a status history the customer can check. The hard problem is booking the last
+space in a slot when several customers want it at once — a slot must never exceed its capacity.
+Who uses it
+Customer Sees slots, books a pickup, checks the order's status.
+Courier Accepts pickups, collects payment, marks collected and delivered.
+Ops manager Defines zones, slots and capacities, prices, sees revenue.
+Payment provider
+(machine)
+Calls POST /webhooks/payment when a customer pays online. Signed; can arrive twice.
+User stories — build them in this order
+Accounts & access
+• As a customer, I want to register with my zone so that I see the right slots.
+• As an ops manager, I want courier accounts so that couriers only see their own pickups.
+Booking
+• As a customer, I want to see available slots for my zone and date so that I pick a convenient time.
+• As a customer, I want to book a pickup slot so that a courier is reserved for me.
+• As a customer, I want to list my garments with quantities so that the price is known up front.
+• As a courier, I want to record payment on pickup so that the order is paid.
+Operations
+• As a courier, I want to accept a pickup so that it is assigned to me.
+• As a courier, I want to mark collected, washing, ready, out for delivery and delivered so that the customer sees
+progress.
+• As an ops manager, I want to define slots with capacity per zone so that we never over-promise.
+• As an ops manager, I want a revenue report by zone so that I know where to add couriers.
+Records
+• As a customer, I want to see my order's status history so that I know what stage it is at.
+• As an ops manager, I want a courier board so that I see who has what today.
+Payments & live updates
+• As the service, I want online payments confirmed by webhook so that pickups are marked paid automatically.
+• As a customer, I want my order's stage pushed to my phone live (SSE) so that I know when to expect the courier.
+Acceptance criteria — the examiner's test list
+Turn every line into one pytest test. The line in bold is the hard problem.
+Area Given / When / Then
+Access • Given no token → 401. Given a courier token on slot creation → 403.
+Slots • Given a slot with capacity 5 and 4 bookings, when a customer books, then 201 and the slot is
+full.
+• Given a full slot, when another customer books, then 409.
+• Given two bookings for the last space at the same time, then exactly one 201 and one 409.
+• Given a slot in the past, when booking, then 422.
+• Given a cancellation before pickup, then the space returns to the slot.
+Tracking • Given a pickup, when the courier marks a stage, then one status_history row is added.
+• Given a stage out of order (delivered before collected), then 409.
+Webhook &
+stream
+• Given a signed webhook for an unpaid pickup, then 200 and the pickup becomes PAID; given
+the same event again, then 200 and no change; given a bad signature, then 401.
+• Given a stage changes, then the pickup's stream receives it within one second.
