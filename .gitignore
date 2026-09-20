@@ -1,3 +1,5 @@
 .env
 /.venv
 questions.txt
+__pycache__/
+*.pyc
