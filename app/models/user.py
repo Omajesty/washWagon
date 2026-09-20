@@ -15,5 +15,5 @@ class User(SQLModel, table=True):
     name: str
     email: EmailStr
     hashed_password: str
-    role: Role.CUSTOMER
+    role: Role = Role.CUSTOMER
     zone_id: int = Field(foreign_key="zone.id")
