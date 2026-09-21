@@ -1,7 +1,13 @@
 from datetime import datetime, timezone
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.order_item import OrderItem
+    from app.models.pickups import Pickup
 
 
 class OrderStatus(str, Enum):
@@ -66,8 +72,12 @@ class Order(SQLModel, table=True):
         ge=0,
     )
 
-    status: OrderStatus = OrderStatus.BOOKED
+    status: OrderStatus = Field (default=OrderStatus.BOOKED)
 
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
+    
+    customer: "User" = Relationship(back_populates="orders")
+    items: list["OrderItem"] = Relationship(back_populates="order")
+    pickup: "Pickup | None" = Relationship(back_populates="order")

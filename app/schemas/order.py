@@ -5,7 +5,7 @@ from enum import Enum
 
 class GarmentType(str, Enum):
     SHIRT = "shirt"
-    Jean = "jean"
+    JEAN = "jean"
     JOGGER = "jogger"
     DRESS = "dress"
     SKIRT = "skirt"

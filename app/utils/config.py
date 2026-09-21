@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str | None = None
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_SECONDS: int = 60
-    BANK_API_KEY = "washwagon"
+    WEBHOOK_SECRET = "washwagon"
 
 
     model_config = SettingsConfigDict(

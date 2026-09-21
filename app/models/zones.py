@@ -1,13 +1,14 @@
 from typing import TYPE_CHECKING
 
 from sqlmodel import SQLModel, Field, Relationship
-from app.models.user import User
+
 
 if TYPE_CHECKING:
+    from app.models.user import User
     from app.models.slots import Slot
 class Zone(SQLModel, table=True):
 
-    __tablename__ = "Zones"
+    __tablename__ = "zones"
 
     id: int | None = Field(default=None, primary_key=True)
     name: str

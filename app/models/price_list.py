@@ -3,7 +3,7 @@ from app.schemas.order import GarmentType
 
 class PriceList(SQLModel, table=True):
     
-    __tablename__ = "Pricelist"
+    __tablename__ = "price_list"
 
     id: int | None = Field(default=None, primary_key=True)
     garment: GarmentType

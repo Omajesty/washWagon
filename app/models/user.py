@@ -6,7 +6,8 @@ from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
     from app.models.zones import Zone
-    from app.models.pickups import Pickups
+    from app.models.orders import Order
+    from app.models.pickups import Pickup
 
 
 class Role(str, Enum):
@@ -17,29 +18,25 @@ class Role(str, Enum):
 
 class User(SQLModel, table=True):
 
-    __tablename__ = "Users"
+    __tablename__ = "users"
 
     id: int | None = Field(default=None, primary_key=True)
     name: str
     email: EmailStr
     hashed_password: str
-    role: Role = Role.CUSTOMER
+    role: Role = Field(default=Role.CUSTOMER)
 
-    zone_id: int = Field(
+    zone_id: int | None = Field(
         default=None,
-        foreign_key="zone.id"
+        foreign_key="zones.id"
         )
 
-    zone: "Zone" | None = Relationship(back_populates="user")
+    zone: "Zone | None" = Relationship(back_populates="users")
 
-    customer_pickups: list["Pickups"] = Relationship(
-        back_populates="customer",
-        sa_relationship_kwargs={
-            "foreign_keys": "Pickup.user_id"
-        }
-    )
+    ordes: list["Order"] = Relationship(
+        back_populates="customer")
 
-    courier_pickups: list["Pickups"] = Relationship(
+    courier_pickups: list["Pickup"] = Relationship(
         back_populates="courier",
         sa_relationship_kwargs={
             "foreign_keys": "Pickup.courier_id"

@@ -1,12 +1,7 @@
-from enum import Enum
 
 from pydantic import BaseModel, EmailStr, Field
+from app.models.user import Role
 
-
-class Role(str, Enum):
-    OPS_MANAGER = "ops_manager"
-    COURIER = "courier"
-    CUSTOMER = "customer"
 
 
 class User(BaseModel):
@@ -27,3 +22,8 @@ class UserLogin(BaseModel):
 class UserOut(User):
     id: int
     role: Role = Role.CUSTOMER
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"

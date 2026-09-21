@@ -5,20 +5,20 @@ from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
     from app.models.zones import Zone
-    from app.models.pickups import Pickups
+    from app.models.pickups import Pickup
 
 class Slot(SQLModel, table=True):
 
-    __tablename__ = "Slots"
+    __tablename__ = "slots"
 
     id: int | None = Field(default=None, primary_key=True)
-    zone_id: int = Field(foreign_key="zone.id", unique=True)
+    zone_id: int = Field(foreign_key="zone.id")
     capacity: int = Field(default=5, gt=0)
     booked_count: int =Field(default=0, ge=0)
     date: date
-    start_at: time = Field(index=True, unique=True)
+    start_at: time
     stop_at: time
     
     zone: "Zone" = Relationship(back_populates="slots")
-    pickups: list["Pickups"] = Relationship(back_populates="slot")
+    pickups: list["Pickup"] = Relationship(back_populates="slot")
     
