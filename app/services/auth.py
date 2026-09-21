@@ -1,39 +1,42 @@
+from sqlmodel import Session, select
+
+from app.models.user import User
+from app.models.zones import Zone
 
 
-from fastapi import HTTPException, status
-from sqlmodel import Session
+def get_user_by_email(
+    session: Session,
+    email: str,
+) -> User | None:
 
-from app.models.user import Role, User
-from app.schemas.user import  UserOut, UserRegister
-from app.services.dependency import create_user, get_user_by_email
-from app.utils.security import hash_password
+    statement = select(User).where(User.email == email)
+
+    return session.exec(statement).first()
 
 
-def register_customer(
-        session:Session,
-        data:UserRegister
-) -> UserOut:
+def get_user_by_id(
+    session: Session,
+    user_id: int,
+) -> User | None:
 
-    existing_user = get_user_by_email(
-        session, data.email,
-    )
+    return session.get(User, user_id)
 
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered",
-        )
-    user = User(
-        name=data.name,
-        email=data.email,
-        hashed_password=hash_password(data.password),
-        role=Role.CUSTOMER,
-        zone_id=data.zone,
-    )
 
-    create_user(session,user)
+def get_zone_by_name(
+    session: Session,
+    name: str,
+) -> Zone | None:
 
-    session.commit()
-    session.refresh(user)
+    statement = select(Zone).where(Zone.name == name)
 
+    return session.exec(statement).first()
+
+
+def create_user(
+    session: Session,
+    user: User,
+) -> User:
+
+    session.add(user)
+    session.flush()
     return user
