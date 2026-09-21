@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
 
+from app.models.user import Role, User
 from app.schemas.user import UserOut
 from app.utils.config import settings
 from app.utils.database import get_session
@@ -52,3 +53,20 @@ def get_current_user(
         raise credentials_error
 
     return user
+
+
+def require_role(*allowed_roles: Role):
+
+    def role_checker(
+        current_user: User = Depends(get_current_user),
+    ) -> User:
+
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to perform this action",
+            )
+
+        return current_user
+
+    return role_checker
