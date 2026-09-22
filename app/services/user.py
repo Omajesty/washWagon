@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlmodel import Session
 
 from app.models.user import Role, User
-from app.schemas.user import UserRegister
+from app.schemas.user import UserRegister, CourierCreate
 from app.services.auth import (
     create_user,
     get_user_by_email,
@@ -76,3 +76,48 @@ def confirm_user(
     )
 
     return token
+
+def create_courier(
+    session: Session,
+    data: CourierCreate,
+) -> User:
+
+    existing_user = get_user_by_email(
+        session,
+        data.email,
+    )
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered",
+        )
+
+    zone = get_zone_by_name(
+        session,
+        data.zone,
+    )
+
+    if zone is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Zone not found",
+        )
+
+    user = User(
+        name=data.name,
+        email=data.email,
+        hashed_password=hash_password(data.password),
+        role=Role.COURIER,
+        zone_id=zone.id,
+    )
+
+    create_user(
+        session,
+        user,
+    )
+
+    session.commit()
+    session.refresh(user)
+
+    return user

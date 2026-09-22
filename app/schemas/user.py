@@ -27,3 +27,9 @@ class UserOut(User):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class CourierCreate(BaseModel):
+    name: str = Field(max_length=125)
+    email: EmailStr
+    password: str = Field(min_length=8)
+    zone: str = Field(min_length=1, max_length=25)
