@@ -5,21 +5,20 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
 
 from app.models.user import Role, User
-from app.schemas.user import UserOut
 from app.utils.config import settings
 from app.utils.database import get_session
 from app.services.auth import get_user_by_id
 
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/v1/auth/login",
+    tokenUrl="/auth/login",
 )
 
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_session),
-) -> UserOut:
+) -> User:
 
     credentials_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
