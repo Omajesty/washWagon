@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from enum import Enum
+from datetime import datetime
 
 
 class GarmentType(str, Enum):
@@ -19,4 +20,19 @@ class CreateOrderItem(BaseModel):
 
 
 class CreateOrder(BaseModel):
-    items: list[CreateOrderItem] = Field(min_length=1) 
+    items: list[CreateOrderItem] = Field(min_length=1)
+
+class OrderItemOut(BaseModel):
+    id: int
+    garment: GarmentType
+    quantity: int
+    unit_price: int
+
+
+class OrderOut(BaseModel):
+    id: int
+    customer_id: int
+    total: int
+    status: str
+    created_at: datetime
+    items: list[OrderItemOut]
