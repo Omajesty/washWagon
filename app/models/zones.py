@@ -1,17 +1,19 @@
+from typing import Optional
+
 from typing import TYPE_CHECKING
 
-from sqlmodel import SQLModel, Field, Relationship
-
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.slots import Slot
-class Zone(SQLModel, table=True):
+    from app.models.user import User
 
+
+class Zone(SQLModel, table=True):
     __tablename__ = "zones"
 
-    id: int | None = Field(default=None, primary_key=True)
-    name: str
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, index=True)
 
     slots: list["Slot"] = Relationship(back_populates="zone")
     users: list["User"] = Relationship(back_populates="zone")

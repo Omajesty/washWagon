@@ -1,13 +1,15 @@
+from typing import Optional
+
 from enum import Enum
 from typing import TYPE_CHECKING
 
 from pydantic import EmailStr
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models.zones import Zone
     from app.models.orders import Order
     from app.models.pickups import Pickup
+    from app.models.zones import Zone
 
 
 class Role(str, Enum):
@@ -17,28 +19,18 @@ class Role(str, Enum):
 
 
 class User(SQLModel, table=True):
-
     __tablename__ = "users"
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    email: EmailStr
+    email: EmailStr = Field(unique=True, index=True)
     hashed_password: str
     role: Role = Field(default=Role.CUSTOMER)
+    zone_id: Optional[int] = Field(default=None, foreign_key="zones.id")
 
-    zone_id: int | None = Field(
-        default=None,
-        foreign_key="zones.id"
-        )
-
-    zone: "Zone | None" = Relationship(back_populates="users")
-
-    ordes: list["Order"] = Relationship(
-        back_populates="customer")
-
+    zone: Optional["Zone"] = Relationship(back_populates="users")
+    orders: list["Order"] = Relationship(back_populates="customer")
     courier_pickups: list["Pickup"] = Relationship(
         back_populates="courier",
-        sa_relationship_kwargs={
-            "foreign_keys": "Pickup.courier_id"
-        }
+        sa_relationship_kwargs={"foreign_keys": "Pickup.courier_id"},
     )
